@@ -13,11 +13,9 @@ public class TeleOp_2026_2027 extends OpMode
     //---Declare Motors---//
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorFR;
-    private DcMotor intakeMotor;
-    private DcMotor launcherMotor;
-
-    boolean intakeOn = false;
-    boolean launcherOn = false;
+    private DCMotor motorFL;
+    private DcMotor motorBR;
+    private DcMotor motorBL;
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
@@ -25,11 +23,14 @@ public class TeleOp_2026_2027 extends OpMode
     {
         //---Initialize Motors---//
         motorFR  = hardwareMap.get(DcMotor.class, "motorFR");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-        launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
-
+        motorFL = hardwarMap.get(DCMotor.class, "motorFL");
+        motorBR = hardwareMap.get(DCMotor.class, "motorBR");
+        motorBL = hardwareMap.get(DCMotor.class, "motorBL");
         //---Set Motor Directions---//
-
+        motorFR.setDirection(DcMotor.Direction.FORWARD);
+        motorFL.setDirection(DcMotor.Direction.FORWARD);
+        motorBL.setDirection(DcMotor.Direction.FORWARD);
+        motorBR.setDirection(DcMotor.Direction.FORWARD);
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");
     }
@@ -52,8 +53,7 @@ public class TeleOp_2026_2027 extends OpMode
     @Override
     public void loop() 
     {
-        launcher();
-        intake();
+
     }
 
     //---Code to run ONCE after the driver hits STOP---//
@@ -70,32 +70,31 @@ public class TeleOp_2026_2027 extends OpMode
     
     public void launcher()
     {
-        launcherOn = gamepad1.dpad_up;
-
-        if(launcherOn){
-            launcherMotor.setPower(1);
-        }
-        else{
-            launcherMotor.setPower(0);
-        }
+    
     }
     
     public void intake()
     {
-        if(gamepad1.aWasReleased()){
-            intakeOn = !intakeOn;
-        }
-
-        if(intakeOn){
-            intakeMotor.setPower(1);
-        }
-        else{
-            launcherMotor.setPower(0);
-        }
+    
     }
     
     public void hood()
     {
+    
+    }
+
+    public void drivebase()
+    {
+        //Get variables from the gamepad
+        double driveForward = gamepad1.left_stick_y;
+        double driveSide = gamepad1.left_stick_x;
+        double driveTurn = gamepad1.right_stick_y;
+        
+        //Translate inputs to outputs for motors
+        motorBL.setpower = (driveForward - driveTurn - driveSide);
+        motorBR.setpower = (driveForward + driveTurn + driveSide);
+        motorFL.setpower = (driveForward + driveTurn + driveSide);
+        motorFR.setpower = (driveForward - driveTurn - driveSide);
     
     }
 

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.robotcontroller.external.samples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -13,7 +13,7 @@ public class TeleOp_2026_2027 extends OpMode
     //---Declare Motors---//
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorFR;
-    private DCMotor motorFL;
+    private DcMotor motorFL;
     private DcMotor motorBR;
     private DcMotor motorBL;
 
@@ -23,9 +23,9 @@ public class TeleOp_2026_2027 extends OpMode
     {
         //---Initialize Motors---//
         motorFR  = hardwareMap.get(DcMotor.class, "motorFR");
-        motorFL = hardwarMap.get(DCMotor.class, "motorFL");
-        motorBR = hardwareMap.get(DCMotor.class, "motorBR");
-        motorBL = hardwareMap.get(DCMotor.class, "motorBL");
+        motorFL = hardwareMap.get(DcMotor.class, "motorFL");
+        motorBR = hardwareMap.get(DcMotor.class, "motorBR");
+        motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         //---Set Motor Directions---//
         motorFR.setDirection(DcMotor.Direction.FORWARD);
         motorFL.setDirection(DcMotor.Direction.FORWARD);
@@ -54,6 +54,8 @@ public class TeleOp_2026_2027 extends OpMode
     public void loop() 
     {
 
+        driveBase();
+
     }
 
     //---Code to run ONCE after the driver hits STOP---//
@@ -62,11 +64,7 @@ public class TeleOp_2026_2027 extends OpMode
     {
     
     }
-    
-    public void drivebase()
-    {
-    
-    }
+
     
     public void launcher()
     {
@@ -83,7 +81,7 @@ public class TeleOp_2026_2027 extends OpMode
     
     }
 
-    public void drivebase()
+    public void driveBase()
     {
         //Get variables from the gamepad
         double driveForward = gamepad1.left_stick_y;
@@ -91,10 +89,10 @@ public class TeleOp_2026_2027 extends OpMode
         double driveTurn = gamepad1.right_stick_y;
         
         //Translate inputs to outputs for motors
-        motorBL.setpower = (driveForward - driveTurn - driveSide);
-        motorBR.setpower = (driveForward + driveTurn + driveSide);
-        motorFL.setpower = (driveForward + driveTurn + driveSide);
-        motorFR.setpower = (driveForward - driveTurn - driveSide);
+        motorBL.setPower (driveForward - driveTurn - driveSide);
+        motorBR.setPower (driveForward + driveTurn + driveSide);
+        motorFL.setPower (driveForward + driveTurn + driveSide);
+        motorFR.setPower (driveForward - driveTurn - driveSide);
     
     }
 

@@ -1,4 +1,6 @@
 
+package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,11 +13,11 @@ import com.qualcomm.robotcore.util.Range;
 public class TeleOp_2026_2027 extends OpMode
 {
     //---Declare Motors---//
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor motorFR;
-    private DcMotor motorFL;
-    private DcMotor motorBR;
-    private DcMotor motorBL;
+    //private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor motorFR = null;
+    private DcMotor motorFL = null;
+    private DcMotor motorBR = null;
+    private DcMotor motorBL = null;
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
@@ -28,15 +30,18 @@ public class TeleOp_2026_2027 extends OpMode
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         //---Set Motor Directions---//
         motorFR.setDirection(DcMotor.Direction.FORWARD);
-        motorFL.setDirection(DcMotor.Direction.FORWARD);
-        motorBL.setDirection(DcMotor.Direction.FORWARD);
+        motorFL.setDirection(DcMotor.Direction.REVERSE);
+        motorBL.setDirection(DcMotor.Direction.REVERSE);
         motorBR.setDirection(DcMotor.Direction.FORWARD);
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");
     }
 
+
+
     //---Code to run REPEATEDLY after the driver hits INIT, but before they hit START---//
     @Override
+
     public void init_loop() 
     {
     
@@ -46,7 +51,7 @@ public class TeleOp_2026_2027 extends OpMode
     @Override
     public void start() 
     {
-        runtime.reset();
+        //runtime.reset();
     }
 
     //---Code to run REPEATEDLY after the driver hits START but before they hit STOP---//
@@ -84,13 +89,13 @@ public class TeleOp_2026_2027 extends OpMode
     public void driveBase()
     {
         //Get variables from the gamepad
-        double driveForward = gamepad1.left_stick_y;
+        double driveForward = -gamepad1.left_stick_y;
         double driveSide = gamepad1.left_stick_x;
-        double driveTurn = gamepad1.right_stick_y;
+        double driveTurn = gamepad1.right_stick_x;
         
         //Translate inputs to outputs for motors
-        motorBL.setPower (driveForward - driveTurn - driveSide);
-        motorBR.setPower (driveForward + driveTurn + driveSide);
+        motorBL.setPower (driveForward + driveTurn - driveSide);
+        motorBR.setPower (driveForward - driveTurn + driveSide);
         motorFL.setPower (driveForward + driveTurn + driveSide);
         motorFR.setPower (driveForward - driveTurn - driveSide);
     

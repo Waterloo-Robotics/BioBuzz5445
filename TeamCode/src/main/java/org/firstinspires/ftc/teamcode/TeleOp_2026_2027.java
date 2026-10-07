@@ -18,8 +18,6 @@ public class TeleOp_2026_2027 extends OpMode
     private DcMotor motorFL = null;
     private DcMotor motorBR = null;
     private DcMotor motorBL = null;
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor motorFR;
     private DcMotor intakeMotor;
     private DcMotor launcherMotor;
 
@@ -31,7 +29,7 @@ public class TeleOp_2026_2027 extends OpMode
     public void init() 
     {
         //---Initialize Motors---//
-        motorFR  = hardwareMap.get(DcMotor.class, "motorFR");
+        motorFR = hardwareMap.get(DcMotor.class, "motorFR");
         motorFL = hardwareMap.get(DcMotor.class, "motorFL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");

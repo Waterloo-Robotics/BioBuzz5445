@@ -18,6 +18,13 @@ public class TeleOp_2026_2027 extends OpMode
     private DcMotor motorFL = null;
     private DcMotor motorBR = null;
     private DcMotor motorBL = null;
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor motorFR;
+    private DcMotor intakeMotor;
+    private DcMotor launcherMotor;
+
+    boolean intakeOn = false;
+    boolean launcherOn = false;
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
@@ -28,6 +35,9 @@ public class TeleOp_2026_2027 extends OpMode
         motorFL = hardwareMap.get(DcMotor.class, "motorFL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
+
         //---Set Motor Directions---//
         motorFR.setDirection(DcMotor.Direction.FORWARD);
         motorFL.setDirection(DcMotor.Direction.REVERSE);
@@ -61,6 +71,8 @@ public class TeleOp_2026_2027 extends OpMode
 
         driveBase();
 
+        launcher();
+        intake();
     }
 
     //---Code to run ONCE after the driver hits STOP---//
@@ -73,12 +85,28 @@ public class TeleOp_2026_2027 extends OpMode
     
     public void launcher()
     {
-    
+        launcherOn = gamepad1.dpad_up;
+
+        if(launcherOn){
+            launcherMotor.setPower(1);
+        }
+        else{
+            launcherMotor.setPower(0);
+        }
     }
     
     public void intake()
     {
-    
+        if(gamepad1.aWasReleased()){
+            intakeOn = !intakeOn;
+        }
+
+        if(intakeOn){
+            intakeMotor.setPower(1);
+        }
+        else{
+            launcherMotor.setPower(0);
+        }
     }
     
     public void hood()

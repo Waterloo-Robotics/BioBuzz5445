@@ -29,7 +29,6 @@ public class TeleOp_2026_2027 extends OpMode
         launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
 
         //---Set Motor Directions---//
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
 
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");

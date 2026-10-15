@@ -30,6 +30,8 @@ public class TeleOp_2026_2027 extends OpMode
 
     IMU imu;
 
+    private double yaw;
+
     boolean intakeOn = false;
     boolean launcherOn = false;
 
@@ -122,7 +124,7 @@ public class TeleOp_2026_2027 extends OpMode
         }
 
         if(intakeOn){
-            intakeMotor.setPower(1);
+            intakeMotor.setPower(0);
         }
         else{
             launcherMotor.setPower(0);
@@ -137,15 +139,18 @@ public class TeleOp_2026_2027 extends OpMode
     public void driveBase()
     {
         //Get variables from the gamepad
-        double driveForward = -gamepad1.left_stick_y;
-        double driveSide = gamepad1.left_stick_x;
+        double y_Input = gamepad1.left_stick_y;
+        double x_Input = gamepad1.left_stick_x;
         double driveTurn = gamepad1.right_stick_x;
-        
+
+        double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
+        double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
         //Translate inputs to outputs for motors
-        motorBL.setPower ((driveForward + driveTurn) - driveSide);
-        motorBR.setPower ((driveForward - driveTurn) + driveSide);
-        motorFL.setPower ((driveForward + driveTurn) + driveSide);
-        motorFR.setPower ((driveForward - driveTurn) - driveSide);
+        motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
+        motorBR.setPower ((y_Mod - driveTurn) + x_Mod);
+        motorFL.setPower ((y_Mod + driveTurn) + x_Mod);
+        motorFR.setPower ((y_Mod - driveTurn) - x_Mod);
 
     }
 
@@ -165,6 +170,8 @@ public class TeleOp_2026_2027 extends OpMode
             // Retrieve Rotational Angles and Velocities
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+
+            yaw = orientation.getYaw(AngleUnit.RADIANS);
 
             telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
             telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));

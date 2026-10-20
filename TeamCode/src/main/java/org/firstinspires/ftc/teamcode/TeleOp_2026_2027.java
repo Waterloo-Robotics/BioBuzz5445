@@ -2,23 +2,26 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @TeleOp(name="TeleOp_2026_2027", group="Iterative OpMode")
-public class TeleOp_2026_2027 extends OpMode
-{
+public class TeleOp_2026_2027 extends OpMode {
+    private List<Integer> routine;
+
+
     //---Declare Motors---//
     //private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorFR = null;
@@ -47,6 +50,9 @@ public class TeleOp_2026_2027 extends OpMode
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
 
+        routine = new ArrayList<>();
+            //routine.add(#); put in public void init_loop(), then if and if else statements. Thank you very much, have a great day!//
+
         imu = hardwareMap.get(IMU.class, "imu");
         //---Initialize
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
@@ -66,6 +72,8 @@ public class TeleOp_2026_2027 extends OpMode
         motorBR.setDirection(DcMotor.Direction.FORWARD);
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");
+
+        telemetry.addData("routine", routine);
     }
 
 
@@ -75,7 +83,9 @@ public class TeleOp_2026_2027 extends OpMode
 
     public void init_loop() 
     {
-    
+
+
+
     }
 
     //---Code to run ONCE when the driver hits START---//
@@ -89,12 +99,18 @@ public class TeleOp_2026_2027 extends OpMode
     @Override
     public void loop() 
     {
+        telemetry.addData("routine", routine);
+
         displayIMU();
 
         driveBase();
 
         launcher();
         intake();
+        if (gamepad1.bWasPressed()) {
+
+            routine.add(2);
+        }
     }
 
     //---Code to run ONCE after the driver hits STOP---//
@@ -102,6 +118,7 @@ public class TeleOp_2026_2027 extends OpMode
     public void stop() 
     {
 
+        bob();
     }
 
     
@@ -181,4 +198,16 @@ public class TeleOp_2026_2027 extends OpMode
             telemetry.addData("Roll (Y) velocity", "%.2f Deg/Sec", angularVelocity.yRotationRate);
             telemetry.update();
     }
+
+    public void bob()
+    {
+        String routineString = routine.toString();
+        routineString = routineString.substring(1, routineString.length()-1);
+
+        File file = AppUtil.getInstance().getSettingsFile("Saving_and_Loading_on_text_file");
+        ReadWriteFile.writeFile(file, routineString);
+
+        requestOpModeStop();
+    }
+
 }

@@ -38,6 +38,8 @@ public class TeleOp_2026_2027 extends OpMode {
     boolean intakeOn = false;
     boolean launcherOn = false;
 
+    //boolean transfer = false;
+
     //---Code to run ONCE when the driver hits INIT---//
     @Override
     public void init() 
@@ -49,6 +51,7 @@ public class TeleOp_2026_2027 extends OpMode {
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
+        //transfer = hardwareMap.get(DcMotor.class,"transfer");
 
         routine = new ArrayList<>();
             //routine.add(#); put in public void init_loop(), then if and if else statements. Thank you very much, have a great day!//
@@ -118,7 +121,7 @@ public class TeleOp_2026_2027 extends OpMode {
     public void stop() 
     {
 
-        bob();
+        routineBlock();
     }
 
     
@@ -136,18 +139,25 @@ public class TeleOp_2026_2027 extends OpMode {
     
     public void intake()
     {
-        if(gamepad1.aWasReleased()){
+        if(gamepad1.aWasPressed()){
             intakeOn = !intakeOn;
         }
 
         if(intakeOn){
-            intakeMotor.setPower(0);
+            intakeMotor.setPower(1);
         }
         else{
             launcherMotor.setPower(0);
         }
+
+        if(gamepad1.dpad_up && gamepad1.aWasPressed()){
+           // transfer.setPower(1);
+
+        }
     }
-    
+    //if( Flywheel_on && GP1_LT ){
+       // trasfer on
+    //  }
     public void hood()
     {
     
@@ -199,7 +209,7 @@ public class TeleOp_2026_2027 extends OpMode {
             telemetry.update();
     }
 
-    public void bob()
+    public void routineBlock()
     {
         String routineString = routine.toString();
         routineString = routineString.substring(1, routineString.length()-1);

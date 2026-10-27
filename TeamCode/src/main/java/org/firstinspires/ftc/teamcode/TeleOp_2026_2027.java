@@ -156,7 +156,7 @@ public class TeleOp_2026_2027 extends OpMode {
         }
     }
     //if( Flywheel_on && GP1_LT ){
-       // trasfer on
+       // transfer on
     //  }
     public void hood()
     {

@@ -5,6 +5,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -19,7 +20,7 @@ import java.util.List;
 
 @TeleOp(name="TeleOp_2026_2027", group="Iterative OpMode")
 public class TeleOp_2026_2027 extends OpMode {
-    private List<Integer> routine;
+    //private List<Integer> routine;
 
 
     //---Declare Motors---//
@@ -31,6 +32,7 @@ public class TeleOp_2026_2027 extends OpMode {
     private DcMotor intakeMotor;
     private DcMotor launcherMotor;
 
+
     IMU imu;
 
     private double yaw;
@@ -38,7 +40,6 @@ public class TeleOp_2026_2027 extends OpMode {
     boolean intakeOn = false;
     boolean launcherOn = false;
 
-    //boolean transfer = false;
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
@@ -51,15 +52,14 @@ public class TeleOp_2026_2027 extends OpMode {
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
-        //transfer = hardwareMap.get(DcMotor.class,"transfer");
 
-        routine = new ArrayList<>();
+        //routine = new ArrayList<>();
             //routine.add(#); put in public void init_loop(), then if and if else statements. Thank you very much, have a great day!//
 
         imu = hardwareMap.get(IMU.class, "imu");
         //---Initialize
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 
@@ -73,10 +73,12 @@ public class TeleOp_2026_2027 extends OpMode {
         motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorBL.setDirection(DcMotor.Direction.REVERSE);
         motorBR.setDirection(DcMotor.Direction.FORWARD);
+
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");
 
-        telemetry.addData("routine", routine);
+        //telemetry.addData("routine", routine);
     }
 
 
@@ -102,7 +104,7 @@ public class TeleOp_2026_2027 extends OpMode {
     @Override
     public void loop() 
     {
-        telemetry.addData("routine", routine);
+        //telemetry.addData("routine", routine);
 
         displayIMU();
 
@@ -110,27 +112,28 @@ public class TeleOp_2026_2027 extends OpMode {
 
         launcher();
         intake();
-        if (gamepad1.bWasPressed()) {
+        /*if (gamepad1.bWasPressed()) {
 
             routine.add(2);
-        }
+        }*/
     }
 
     //---Code to run ONCE after the driver hits STOP---//
     @Override
     public void stop() 
     {
-
-        routineBlock();
+        //routineBlock();
     }
 
     
     public void launcher()
     {
-        launcherOn = gamepad1.dpad_up;
+        if(gamepad1.yWasReleased()){
+            launcherOn = !launcherOn;
+        }
 
         if(launcherOn){
-            launcherMotor.setPower(0);
+            launcherMotor.setPower(1);
         }
         else{
             launcherMotor.setPower(0);
@@ -139,7 +142,7 @@ public class TeleOp_2026_2027 extends OpMode {
     
     public void intake()
     {
-        if(gamepad1.aWasPressed()){
+        if(gamepad1.aWasReleased()){
             intakeOn = !intakeOn;
         }
 
@@ -147,17 +150,11 @@ public class TeleOp_2026_2027 extends OpMode {
             intakeMotor.setPower(1);
         }
         else{
-            launcherMotor.setPower(0);
+            intakeMotor.setPower(0);
         }
 
-        if(gamepad1.dpad_up && gamepad1.aWasPressed()){
-           // transfer.setPower(1);
-
-        }
     }
-    //if( Flywheel_on && GP1_LT ){
-       // transfer on
-    //  }
+
     public void hood()
     {
     
@@ -170,8 +167,14 @@ public class TeleOp_2026_2027 extends OpMode {
         double x_Input = gamepad1.left_stick_x;
         double driveTurn = gamepad1.right_stick_x;
 
-        double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
-        double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+        //y_Input is drive forward
+        //x_Input is drive turn
+
+        //double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
+        //double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
+        double x_Mod = x_Input * Math.cos(yaw) + y_Input * Math.sin(yaw);
+        double y_Mod = -x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
 
         //Translate inputs to outputs for motors
         motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
@@ -198,7 +201,7 @@ public class TeleOp_2026_2027 extends OpMode {
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
 
-            yaw = orientation.getYaw(AngleUnit.RADIANS);
+            yaw = -orientation.getYaw(AngleUnit.RADIANS);
 
             telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
             telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
@@ -209,15 +212,13 @@ public class TeleOp_2026_2027 extends OpMode {
             telemetry.update();
     }
 
-    public void routineBlock()
+    /*public void routineBlock()
     {
         String routineString = routine.toString();
         routineString = routineString.substring(1, routineString.length()-1);
 
         File file = AppUtil.getInstance().getSettingsFile("Saving_and_Loading_on_text_file");
         ReadWriteFile.writeFile(file, routineString);
-
-        requestOpModeStop();
-    }
+    }*/
 
 }

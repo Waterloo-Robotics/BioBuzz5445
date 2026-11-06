@@ -5,6 +5,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 @TeleOp(name="TeleOp_2026_2027", group="Iterative OpMode")
 public class TeleOp_2026_2027 extends OpMode {
+    //private List<Integer> routine;
 
 
     //---Declare Motors---//
@@ -29,6 +31,7 @@ public class TeleOp_2026_2027 extends OpMode {
     private DcMotor motorBL = null;
     private DcMotor intakeMotor;
     private DcMotor launcherMotor;
+
 
     IMU imu;
 
@@ -50,10 +53,13 @@ public class TeleOp_2026_2027 extends OpMode {
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
 
+        //routine = new ArrayList<>();
+            //routine.add(#); put in public void init_loop(), then if and if else statements. Thank you very much, have a great day!//
+
         imu = hardwareMap.get(IMU.class, "imu");
         //---Initialize
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 
@@ -67,8 +73,12 @@ public class TeleOp_2026_2027 extends OpMode {
         motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorBL.setDirection(DcMotor.Direction.REVERSE);
         motorBR.setDirection(DcMotor.Direction.FORWARD);
+
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");
+
+        //telemetry.addData("routine", routine);
     }
 
 
@@ -94,6 +104,8 @@ public class TeleOp_2026_2027 extends OpMode {
     @Override
     public void loop()
     {
+        //telemetry.addData("routine", routine);
+
         displayIMU();
 
         driveBase();
@@ -106,16 +118,18 @@ public class TeleOp_2026_2027 extends OpMode {
     @Override
     public void stop()
     {
-
+        //routineBlock();
     }
 
 
     public void launcher()
     {
-        launcherOn = gamepad1.dpad_up;
+        if(gamepad1.yWasPressed()){
+            launcherOn = !launcherOn;
+        }
 
         if(launcherOn){
-            launcherMotor.setPower(0);
+            launcherMotor.setPower(1);
         }
         else{
             launcherMotor.setPower(0);
@@ -132,7 +146,7 @@ public class TeleOp_2026_2027 extends OpMode {
             intakeMotor.setPower(1);
         }
         else{
-            launcherMotor.setPower(0);
+            intakeMotor.setPower(0);
         }
 
     }
@@ -149,8 +163,22 @@ public class TeleOp_2026_2027 extends OpMode {
         double x_Input = gamepad1.left_stick_x;
         double driveTurn = gamepad1.right_stick_x;
 
-        double x_Mod = x_Input * Math.cos(yaw) + y_Input * Math.sin(yaw);
-        double y_Mod = -x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+        //y_Input is drive forward
+        //x_Input is drive turn
+
+        //double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
+        //double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
+        double theta = Math.atan2(y_Input, x_Input);
+        double r = Math.hypot(x_Input, y_Input);
+
+        theta = AngleUnit.normalizeRadians(theta - yaw);
+
+        //double x_Mod = x_Input * Math.cos(yaw) + y_Input * Math.sin(yaw);
+        //double y_Mod = -x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
+        double x_Mod = r * Math.sin(theta);
+        double y_Mod = r * Math.cos(theta);
 
         //Translate inputs to outputs for motors
         motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
@@ -166,7 +194,7 @@ public class TeleOp_2026_2027 extends OpMode {
         //telemetry.addData("Hub orientation", "Logo=%s   USB=%s\n ", logoDirection, usbDirection);
 
             // Check to see if heading reset is requested
-            if (gamepad1.y) {
+            if (gamepad1.start) {
                 telemetry.addData("Yaw", "Resetting\n");
                 imu.resetYaw();
             } else {
@@ -177,7 +205,7 @@ public class TeleOp_2026_2027 extends OpMode {
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
 
-            yaw = orientation.getYaw(AngleUnit.RADIANS);
+            yaw = -orientation.getYaw(AngleUnit.RADIANS);
 
             telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
             telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
@@ -195,8 +223,6 @@ public class TeleOp_2026_2027 extends OpMode {
 
         File file = AppUtil.getInstance().getSettingsFile("Saving_and_Loading_on_text_file");
         ReadWriteFile.writeFile(file, routineString);
-
-        requestOpModeStop();
     }*/
 
 }

@@ -43,7 +43,7 @@ public class TeleOp_2026_2027 extends OpMode {
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
-    public void init() 
+    public void init()
     {
         //---Initialize Motors---//
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
@@ -86,7 +86,7 @@ public class TeleOp_2026_2027 extends OpMode {
     //---Code to run REPEATEDLY after the driver hits INIT, but before they hit START---//
     @Override
 
-    public void init_loop() 
+    public void init_loop()
     {
 
 
@@ -95,14 +95,14 @@ public class TeleOp_2026_2027 extends OpMode {
 
     //---Code to run ONCE when the driver hits START---//
     @Override
-    public void start() 
+    public void start()
     {
         //runtime.reset();
     }
 
     //---Code to run REPEATEDLY after the driver hits START but before they hit STOP---//
     @Override
-    public void loop() 
+    public void loop()
     {
         //telemetry.addData("routine", routine);
 
@@ -116,12 +116,12 @@ public class TeleOp_2026_2027 extends OpMode {
 
     //---Code to run ONCE after the driver hits STOP---//
     @Override
-    public void stop() 
+    public void stop()
     {
         //routineBlock();
     }
 
-    
+
     public void launcher()
     {
         if(gamepad1.yWasPressed()){
@@ -135,7 +135,7 @@ public class TeleOp_2026_2027 extends OpMode {
             launcherMotor.setPower(0);
         }
     }
-    
+
     public void intake()
     {
         if(gamepad1.aWasPressed()){
@@ -153,7 +153,7 @@ public class TeleOp_2026_2027 extends OpMode {
 
     public void hood()
     {
-    
+
     }
 
     public void driveBase()

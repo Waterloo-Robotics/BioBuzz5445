@@ -1,105 +1,80 @@
+
 package org.firstinspires.ftc.teamcode;
 
-//import static android.os.SystemClock.sleep;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.ReadWriteFile;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-@Autonomous(name="Auto_2026_2027", group="Robot")
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+@Autonomous(name="Auto_2026_2027", group="Iterative OpMode")
 public class Auto_2026_2027 extends OpMode {
+    //---Declare Motors---//
+    //private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor motorFR = null;
+    private DcMotor motorFL = null;
+    private DcMotor motorBR = null;
+    private DcMotor motorBL = null;
+    private DcMotor intakeMotor;
+    private DcMotor launcherMotor;
 
-    private DcMotor motorFR;
-    private DcMotor motorFL;
-    private DcMotor motorBR;
-    private DcMotor motorBL;
+    IMU imu;
 
-    //private DcMotor intakeMotor;
-    //private DcMotor launcherMotor;
-    GoBildaPinpointDriver pinpoint;
+    private double yaw;
 
+    boolean intakeOn = false;
+    boolean launcherOn = false;
 
-    private final ElapsedTime runtime = new ElapsedTime();
+    //boolean transfer = false;
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
     public void init()
     {
         //---Initialize Motors---//
-        //---Declare OpMode members.---//
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
         motorFL = hardwareMap.get(DcMotor.class, "motorFL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
-        //intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+       // intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         //launcherMotor = hardwareMap.get(DcMotor.class, "launcherMotor");
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        //---Initialize
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+
+        // Now initialize the IMU with this mounting orientation
+        // Note: if you choose two conflicting directions, this initialization will cause a code exception.
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
 
         //---Set Motor Directions---//
-        motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorFR.setDirection(DcMotor.Direction.FORWARD);
+        motorFL.setDirection(DcMotor.Direction.REVERSE);
         motorBL.setDirection(DcMotor.Direction.REVERSE);
         motorBR.setDirection(DcMotor.Direction.FORWARD);
-
         //---Add telemetry data---//
         telemetry.addData("Status", "Initialized");
-
-        configurePinpoint();
-
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
-
-    }
-
-    public void configurePinpoint(){
-       //remember to set offsets
-        pinpoint.setOffsets(-84.0, -168.0, DistanceUnit.MM);
-
-        // If you're using goBILDA odometry pods, select either the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
-        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-
-        /*
-         * Set the direction that each of the two odometry pods count. The X (forward) pod should
-         * increase when you move the robot forward. And the Y (strafe) pod should increase when
-         * you move the robot to the left.
-         */
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
-
-        pinpoint.resetPosAndIMU();
-    }
-    //brayyten said get this but not where to put it
-//    public void driveBase(double y_Input, double x_Input, double driveTurn)
-//    {
-        //Get variables from the gamepad
-//        double y_Input = gamepad1.left_stick_y;
-//        double x_Input = gamepad1.left_stick_x;
-//        double driveTurn = gamepad1.right_stick_x;
-
-//        double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
-//        double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
-
-        //Translate inputs to outputs for motors
-//        motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
-//        motorBR.setPower ((y_Mod - driveTurn) + x_Mod);
-//        motorFL.setPower ((y_Mod + driveTurn) + x_Mod);
-//        motorFR.setPower ((y_Mod - driveTurn) - x_Mod);
-
-//    }
-
-    public void stopAllMotion()
-    {
-        motorFR.setPower (0);
-        motorFL.setPower (0);
-        motorBR.setPower (0);
-        motorBL.setPower (0);
     }
 
     //---Code to run REPEATEDLY after the driver hits INIT, but before they hit START---//
     @Override
+
     public void init_loop()
     {
 
@@ -109,20 +84,116 @@ public class Auto_2026_2027 extends OpMode {
     @Override
     public void start()
     {
-        runtime.reset();
-        stopAllMotion();
+        driveBase(0.457,0,0);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        driveBase(0,0.457,0);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        driveBase(0,0,0);
     }
 
     //---Code to run REPEATEDLY after the driver hits START but before they hit STOP---//
     @Override
     public void loop()
     {
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
 
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
     }
+
+    //---Code to run ONCE after the driver hits STOP---//
+    @Override
+    public void stop()
+    {
+
+    }
+
+
+    public void launcher()
+    {
+        launcherOn = gamepad1.dpad_up;
+
+        if(launcherOn){
+            launcherMotor.setPower(0);
+        }
+        else{
+            launcherMotor.setPower(0);
+        }
+    }
+
+    public void intake()
+    {
+        if(gamepad1.aWasPressed()){
+            intakeOn = !intakeOn;
+        }
+
+        if(intakeOn){
+            intakeMotor.setPower(1);
+        }
+        else{
+            launcherMotor.setPower(0);
+        }
+
+    }
+
+    public void hood()
+    {
+
+    }
+
+    public void driveBase(double y_Input, double x_Input, double driveTurn)
+    {
+        //Get variables from the gamepad
+//        double y_Input = gamepad1.left_stick_y;
+//        double x_Input = gamepad1.left_stick_x;
+//        double driveTurn = gamepad1.right_stick_x;
+
+        double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
+        double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
+        //Translate inputs to outputs for motors
+        motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
+        motorBR.setPower ((y_Mod - driveTurn) + x_Mod);
+        motorFL.setPower ((y_Mod + driveTurn) + x_Mod);
+        motorFR.setPower ((y_Mod - driveTurn) - x_Mod);
+
+    }
+
+    public void displayIMU()
+    {
+
+        //telemetry.addData("Hub orientation", "Logo=%s   USB=%s\n ", logoDirection, usbDirection);
+
+        // Check to see if heading reset is requested
+        if (gamepad1.y) {
+            telemetry.addData("Yaw", "Resetting\n");
+            imu.resetYaw();
+        } else {
+            telemetry.addData("Yaw", "Press Y (triangle) on Gamepad to reset\n");
+        }
+
+        // Retrieve Rotational Angles and Velocities
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+
+        yaw = orientation.getYaw(AngleUnit.RADIANS);
+
+        telemetry.addData("Yaw (Z)", "%.2f Deg. (Heading)", orientation.getYaw(AngleUnit.DEGREES));
+        telemetry.addData("Pitch (X)", "%.2f Deg.", orientation.getPitch(AngleUnit.DEGREES));
+        telemetry.addData("Roll (Y)", "%.2f Deg.\n", orientation.getRoll(AngleUnit.DEGREES));
+        telemetry.addData("Yaw (Z) velocity", "%.2f Deg/Sec", angularVelocity.zRotationRate);
+        telemetry.addData("Pitch (X) velocity", "%.2f Deg/Sec", angularVelocity.xRotationRate);
+        telemetry.addData("Roll (Y) velocity", "%.2f Deg/Sec", angularVelocity.yRotationRate);
+        telemetry.update();
+    }
+
 }
-//NRuke

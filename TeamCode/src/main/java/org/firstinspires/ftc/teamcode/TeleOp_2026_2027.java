@@ -112,10 +112,6 @@ public class TeleOp_2026_2027 extends OpMode {
 
         launcher();
         intake();
-        /*if (gamepad1.bWasPressed()) {
-
-            routine.add(2);
-        }*/
     }
 
     //---Code to run ONCE after the driver hits STOP---//
@@ -128,7 +124,7 @@ public class TeleOp_2026_2027 extends OpMode {
     
     public void launcher()
     {
-        if(gamepad1.yWasReleased()){
+        if(gamepad1.yWasPressed()){
             launcherOn = !launcherOn;
         }
 
@@ -142,7 +138,7 @@ public class TeleOp_2026_2027 extends OpMode {
     
     public void intake()
     {
-        if(gamepad1.aWasReleased()){
+        if(gamepad1.aWasPressed()){
             intakeOn = !intakeOn;
         }
 
@@ -173,8 +169,16 @@ public class TeleOp_2026_2027 extends OpMode {
         //double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
         //double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
 
-        double x_Mod = x_Input * Math.cos(yaw) + y_Input * Math.sin(yaw);
-        double y_Mod = -x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+        double theta = Math.atan2(y_Input, x_Input);
+        double r = Math.hypot(x_Input, y_Input);
+
+        theta = AngleUnit.normalizeRadians(theta - yaw);
+
+        //double x_Mod = x_Input * Math.cos(yaw) + y_Input * Math.sin(yaw);
+        //double y_Mod = -x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
+        double x_Mod = r * Math.sin(theta);
+        double y_Mod = r * Math.cos(theta);
 
         //Translate inputs to outputs for motors
         motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
@@ -190,7 +194,7 @@ public class TeleOp_2026_2027 extends OpMode {
         //telemetry.addData("Hub orientation", "Logo=%s   USB=%s\n ", logoDirection, usbDirection);
 
             // Check to see if heading reset is requested
-            if (gamepad1.y) {
+            if (gamepad1.start) {
                 telemetry.addData("Yaw", "Resetting\n");
                 imu.resetYaw();
             } else {

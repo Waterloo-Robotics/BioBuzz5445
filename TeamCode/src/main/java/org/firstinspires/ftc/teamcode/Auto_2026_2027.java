@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import static android.os.SystemClock.sleep;
+//import static android.os.SystemClock.sleep;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -13,23 +13,24 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 @Autonomous(name="Auto_2026_2027", group="Robot")
 public class Auto_2026_2027 extends OpMode {
 
-    //---Declare OpMode members.---//
     private DcMotor motorFR;
     private DcMotor motorFL;
     private DcMotor motorBR;
     private DcMotor motorBL;
+
     //private DcMotor intakeMotor;
     //private DcMotor launcherMotor;
     GoBildaPinpointDriver pinpoint;
 
 
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
 
     //---Code to run ONCE when the driver hits INIT---//
     @Override
     public void init()
     {
         //---Initialize Motors---//
+        //---Declare OpMode members.---//
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
         motorFL = hardwareMap.get(DcMotor.class, "motorFL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
@@ -53,21 +54,6 @@ public class Auto_2026_2027 extends OpMode {
 
     }
 
-    public void forward() {
-        motorFR.setPower(1);
-        motorFL.setPower(1);
-        motorBR.setPower(1);
-        motorBL.setPower(1);
-    }
-
-    public void stopMoving() {
-        motorFR.setPower(0);
-        motorFL.setPower(0);
-        motorBR.setPower(0);
-        motorBL.setPower(0);
-    }
-
-
     public void configurePinpoint(){
        //remember to set offsets
         pinpoint.setOffsets(-84.0, -168.0, DistanceUnit.MM);
@@ -85,6 +71,32 @@ public class Auto_2026_2027 extends OpMode {
 
         pinpoint.resetPosAndIMU();
     }
+    //brayyten said get this but not where to put it
+//    public void driveBase(double y_Input, double x_Input, double driveTurn)
+//    {
+        //Get variables from the gamepad
+//        double y_Input = gamepad1.left_stick_y;
+//        double x_Input = gamepad1.left_stick_x;
+//        double driveTurn = gamepad1.right_stick_x;
+
+//        double y_Mod = - y_Input * Math.sin(yaw) + x_Input * Math.cos(yaw);
+//        double x_Mod = x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+
+        //Translate inputs to outputs for motors
+//        motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
+//        motorBR.setPower ((y_Mod - driveTurn) + x_Mod);
+//        motorFL.setPower ((y_Mod + driveTurn) + x_Mod);
+//        motorFR.setPower ((y_Mod - driveTurn) - x_Mod);
+
+//    }
+
+    public void stopAllMotion()
+    {
+        motorFR.setPower (0);
+        motorFL.setPower (0);
+        motorBR.setPower (0);
+        motorBL.setPower (0);
+    }
 
     //---Code to run REPEATEDLY after the driver hits INIT, but before they hit START---//
     @Override
@@ -98,9 +110,7 @@ public class Auto_2026_2027 extends OpMode {
     public void start()
     {
         runtime.reset();
-        forward();
-        sleep(1000);
-        stopMoving();
+        stopAllMotion();
     }
 
     //---Code to run REPEATEDLY after the driver hits START but before they hit STOP---//

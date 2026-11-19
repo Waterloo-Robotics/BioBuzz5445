@@ -6,16 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 @TeleOp(name="TeleOp_2026_2027", group="Iterative OpMode")
 public class TeleOp_2026_2027 extends OpMode {
@@ -112,10 +106,8 @@ public class TeleOp_2026_2027 extends OpMode {
 
     public void launcher()
     {
-        launcherOn = gamepad1.dpad_up;
-
-        if(launcherOn){
-            launcherMotor.setPower(0);
+        if(gamepad1.right_trigger > 0.25){
+            launcherMotor.setPower(gamepad1.right_trigger);
         }
         else{
             launcherMotor.setPower(0);
@@ -129,10 +121,10 @@ public class TeleOp_2026_2027 extends OpMode {
         }
 
         if(intakeOn){
-            intakeMotor.setPower(1);
+            intakeMotor.setPower(-1);
         }
         else{
-            launcherMotor.setPower(0);
+            intakeMotor.setPower(0);
         }
 
     }
@@ -145,18 +137,23 @@ public class TeleOp_2026_2027 extends OpMode {
     public void driveBase()
     {
         //Get variables from the gamepad
-        double y_Input = gamepad1.left_stick_y;
-        double x_Input = gamepad1.left_stick_x;
+        double drive_Input = gamepad1.left_stick_y;
+        double strafe_Input = -gamepad1.left_stick_x;
         double driveTurn = gamepad1.right_stick_x;
 
-        double x_Mod = x_Input * Math.cos(yaw) + y_Input * Math.sin(yaw);
-        double y_Mod = -x_Input * Math.sin(yaw) + y_Input * Math.cos(yaw);
+        double theta = Math.atan2(drive_Input, strafe_Input);
+        double r = Math.hypot(strafe_Input, drive_Input);
+
+        theta = AngleUnit.normalizeRadians(theta - yaw);
+
+        double drive_Mod = r * Math.sin(theta);
+        double strafe_Mod = r * Math.cos(theta);
 
         //Translate inputs to outputs for motors
-        motorBL.setPower ((y_Mod + driveTurn) - x_Mod);
-        motorBR.setPower ((y_Mod - driveTurn) + x_Mod);
-        motorFL.setPower ((y_Mod + driveTurn) + x_Mod);
-        motorFR.setPower ((y_Mod - driveTurn) - x_Mod);
+        motorBL.setPower (drive_Mod + driveTurn - strafe_Mod);
+        motorBR.setPower (drive_Mod - driveTurn + strafe_Mod);
+        motorFL.setPower (drive_Mod + driveTurn + strafe_Mod);
+        motorFR.setPower (drive_Mod - driveTurn - strafe_Mod);
 
     }
 

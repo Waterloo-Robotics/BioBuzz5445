@@ -106,17 +106,23 @@ public class TeleOp_2026_2027 extends OpMode {
 
     public void launcher()
     {
-        if(gamepad1.right_trigger > 0.25){
-            launcherMotor.setPower(gamepad1.right_trigger);
+
+        if(gamepad2.yWasPressed()){
+            launcherOn= !launcherOn;
+        }
+
+        if(launcherOn){
+            launcherMotor.setPower(-0.75);
         }
         else{
             launcherMotor.setPower(0);
         }
+
     }
 
     public void intake()
     {
-        if(gamepad1.aWasPressed()){
+        if(gamepad2.aWasPressed()){
             intakeOn = !intakeOn;
         }
 
@@ -125,6 +131,13 @@ public class TeleOp_2026_2027 extends OpMode {
         }
         else{
             intakeMotor.setPower(0);
+
+            if(gamepad2.b){
+                intakeMotor.setPower(0.25);
+            }
+            else{
+                intakeMotor.setPower(0);
+            }
         }
 
     }
@@ -137,8 +150,8 @@ public class TeleOp_2026_2027 extends OpMode {
     public void driveBase()
     {
         //Get variables from the gamepad
-        double drive_Input = gamepad1.left_stick_y;
-        double strafe_Input = -gamepad1.left_stick_x;
+        double drive_Input = - gamepad1.left_stick_y;
+        double strafe_Input = gamepad1.left_stick_x;
         double driveTurn = gamepad1.right_stick_x;
 
         double theta = Math.atan2(drive_Input, strafe_Input);
